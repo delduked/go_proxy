@@ -5,6 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"os"
 
 	"prx/internal/entities"
 	l "prx/internal/logger"
@@ -17,11 +19,45 @@ var (
 )
 
 func InitRedisClient() {
+
+	var REDIS_PASSWORD string
+	if ok := os.Getenv("REDIS_PASSWORD"); ok == "" {
+		l.Log.Error("REDIS_PASSWORD is not set")
+		panic(fmt.Errorf("REDIS_PASSWORD is not set"))
+	} else {
+		REDIS_PASSWORD = os.Getenv("REDIS_PASSWORD")
+	}
+
+	var REDIS_PORT string
+	if ok := os.Getenv("REDIS_PORT"); ok == "" {
+		l.Log.Error("REDIS_PORT is not set")
+		panic(fmt.Errorf("REDIS_PORT is not set"))
+	} else {
+		REDIS_PORT = os.Getenv("REDIS_PORT")
+	}
+
+	var REDIS_ADDRESS string
+	if ok := os.Getenv("REDIS_ADDRESS"); ok == "" {
+		l.Log.Error("REDIS_ADDRESS is not set")
+		panic(fmt.Errorf("REDIS_ADDRESS is not set"))
+	} else {
+		REDIS_ADDRESS = os.Getenv("REDIS_ADDRESS")
+	}
+
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     REDIS_ADDRESS + ":" + REDIS_PORT,
+		Password: REDIS_PASSWORD,
 		DB:       0,
 	})
+
+	l.Log.Info("* Redis client initialized * ")
+	l.Log.Info("*")
+	l.Log.Info("*")
+	l.Log.Info("* Pass: ", REDIS_PASSWORD)
+	l.Log.Info("* Addr: ", REDIS_ADDRESS)
+	l.Log.Info("* Port: ", REDIS_PORT)
+	l.Log.Info("*")
+	l.Log.Info("*")
 }
 
 // UpdateResult holds the results of the update operations, including successes and failures.

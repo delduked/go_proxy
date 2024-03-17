@@ -18,6 +18,7 @@ func main() {
 	mux.HandleFunc("/", handlers.HandleRequest)
 	mux.HandleFunc("/api/update-redirect", handlers.ValidateUpdatePostRequest(handlers.UpdateRedirectRecord))
 	mux.HandleFunc("/api/get-redirects", handlers.ValidateUpdateGetRequest(handlers.GetAllRedirectRecordsHandler))
+	mux.HandleFunc("/api/status", handlers.StatusHandler)
 
 	server := &http3.Server{
 		Addr: ":443",
@@ -29,7 +30,7 @@ func main() {
 	}
 
 	l.Log.Info("Starting HTTP/3 server...")
-	if err := server.ListenAndServeTLS("", ""); err != nil {
+	if err := server.ListenAndServeTLS("./nated.site.crt", "./nated.site.key"); err != nil {
 		l.Log.Fatal("Failed to start server", "err", err)
 	}
 }

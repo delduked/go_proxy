@@ -88,3 +88,20 @@ func GetAllRedirectRecordsHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+func StatusHandler(w http.ResponseWriter, req *http.Request) {
+
+	res := struct {
+		Status string `json:"status"`
+	} {
+		Status: "OK",
+	}
+
+	// Add any status checks you need here
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		l.Log.Error("Failed to encode records", "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
+}
