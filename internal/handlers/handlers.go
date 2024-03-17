@@ -6,6 +6,7 @@ import (
 	"prx/internal/db"
 	"prx/internal/entities"
 	"strings"
+	"time"
 
 	l "prx/internal/logger"
 
@@ -93,8 +94,10 @@ func StatusHandler(w http.ResponseWriter, req *http.Request) {
 
 	res := struct {
 		Status string `json:"status"`
-	} {
+		Time   string `json:"time"`
+	}{
 		Status: "OK",
+		Time:   time.Now().Format(time.RFC3339),
 	}
 
 	// Add any status checks you need here
