@@ -82,7 +82,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 For any inquiries or feedback, please contact [Your Name](mailto:your_email@example.com).
 
 Project Link: [https://github.com/your_username/your_project](https://github.com/your_username/your_project)
-
---- 
-
-Feel free to customize this README with specific details about your project, such as installation instructions, usage examples, or contribution guidelines.
