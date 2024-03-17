@@ -30,7 +30,7 @@ func main() {
 	}
 
 	l.Log.Info("Starting HTTP/3 server...")
-	if err := server.ListenAndServeTLS("./nated.site.crt", "./nated.site.key"); err != nil {
+	if err := server.ListenAndServeTLS("./tls.crt", "./tls.key"); err != nil {
 		l.Log.Fatal("Failed to start server", "err", err)
 	}
 }

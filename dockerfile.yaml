@@ -7,5 +7,7 @@ RUN go build -o /app/main /app/cmd/server/main.go
 FROM alpine:latest
 WORKDIR /app
 COPY --from=stage1 /app/main /app/main
+COPY --from=stage1 /app/cmd/server/tls.crt /app/tls.crt
+COPY --from=stage1 /app/cmd/server/tls.key /app/tls.key
 EXPOSE 80
 CMD ["./main"]

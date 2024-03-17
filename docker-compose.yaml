@@ -6,7 +6,9 @@ services:
       context: ./
     ports:
       - "80:80"
-    environment:
+    volumes:
+      - ./tls.crt:/app/tls.crt
+      - ./tls.key:/app/tls.key
     restart: unless-stopped
     depends_on:
       - dragonfly
