@@ -1,35 +1,32 @@
-version: '3.8'
+version: "3.8"
 services:
-  goprx:
-    image:
-      build: ./dockerfile.yaml
-      context: ./
-    ports:
-      - "80:80"
-    volumes:
-      - ./tls.crt:/app/tls.crt
-      - ./tls.key:/app/tls.key
-    restart: unless-stopped
-    depends_on:
-      - dragonfly
+  # goprx:
+  #   image:
+  #     build: ./dockerfile.yaml
+  #     context: ./
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./tls.crt:/app/tls.crt
+  #     - ./tls.key:/app/tls.key
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - dragonfly
 
   dragonfly:
-    image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
     ulimits:
       memlock: -1
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
     command: >
+      --bind localhost
+      --dir data
+      --dbfilename dump
       --requirepass ${REDIS_PASSWORD} 
       --port ${REDIS_PORT}
-      --save 60 1
-      --loglevel warning
-    # For better performance, consider `host` mode instead `port` to avoid docker NAT.
-    # `host` mode is NOT currently supported in Swarm Mode.
-    # https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
-    # network_mode: "host"
     volumes:
       - ./data:/data
-
+    restart: unless-stopped
 volumes:
   dragonflydata:

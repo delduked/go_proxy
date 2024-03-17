@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"prx/internal/entities"
@@ -22,24 +21,24 @@ func InitRedisClient() {
 
 	var REDIS_PASSWORD string
 	if ok := os.Getenv("REDIS_PASSWORD"); ok == "" {
-		l.Log.Error("REDIS_PASSWORD is not set")
-		panic(fmt.Errorf("REDIS_PASSWORD is not set"))
+		l.Log.Error("REDIS_PASSWORD is not set. Using default value")
+		REDIS_PASSWORD = "your_password"
 	} else {
 		REDIS_PASSWORD = os.Getenv("REDIS_PASSWORD")
 	}
 
 	var REDIS_PORT string
 	if ok := os.Getenv("REDIS_PORT"); ok == "" {
-		l.Log.Error("REDIS_PORT is not set")
-		panic(fmt.Errorf("REDIS_PORT is not set"))
+		l.Log.Error("REDIS_PORT is not set. Using default value")
+		REDIS_PORT = "6379"
 	} else {
 		REDIS_PORT = os.Getenv("REDIS_PORT")
 	}
 
 	var REDIS_ADDRESS string
 	if ok := os.Getenv("REDIS_ADDRESS"); ok == "" {
-		l.Log.Error("REDIS_ADDRESS is not set")
-		panic(fmt.Errorf("REDIS_ADDRESS is not set"))
+		l.Log.Error("REDIS_ADDRESS is not set. Using default value")
+		REDIS_ADDRESS = "localhost"
 	} else {
 		REDIS_ADDRESS = os.Getenv("REDIS_ADDRESS")
 	}
