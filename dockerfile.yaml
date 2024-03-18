@@ -1,13 +1,7 @@
-FROM golang:1.12.1-alpine AS stage1
-WORKDIR /app
+FROM golang:1.19 AS builder
+WORKDIR /app 
 COPY . /app
+RUN go mod tidy
+RUN go get
 RUN go install
-RUN go build -o /app/main /app/cmd/server/main.go
-
-FROM alpine:latest
-WORKDIR /app
-COPY --from=stage1 /app/main /app/main
-COPY --from=stage1 /app/cmd/server/tls.crt /app/tls.crt
-COPY --from=stage1 /app/cmd/server/tls.key /app/tls.key
-EXPOSE 80
-CMD ["./main"]
+CMD ["go","run","main.go"]

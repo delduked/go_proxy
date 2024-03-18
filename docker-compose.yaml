@@ -1,24 +1,36 @@
 version: "3.8"
 services:
-  # goprx:
-  #   image:
-  #     build: ./dockerfile.yaml
-  #     context: ./
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./tls.crt:/app/tls.crt
-  #     - ./tls.key:/app/tls.key
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - dragonfly
+
+  goprx:
+    hostname: goprx
+    container_name: goprx
+    build: 
+      dockerfile: ./dockerfile.yaml
+      context: ./
+    ports:
+      - "443:443"
+    restart: unless-stopped
+    environment:
+      REDIS_PORT: "${REDIS_PORT}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_ADDR: "${REDIS_ADDR}"
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - prx  
+    depends_on:
+      - dragonfly
 
   dragonfly:
-    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    hostname: dragonfly
+    container_name: dragonfly
+    image: "docker.dragonflydb.io/dragonflydb/dragonfly"
     ulimits:
       memlock: -1
     ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
+      - ${REDIS_PORT}
     command: >
       --bind localhost
       --dir data
@@ -27,6 +39,24 @@ services:
       --port ${REDIS_PORT}
     volumes:
       - ./data:/data
+    networks:
+      - prx
     restart: unless-stopped
+  
+  http:
+    image: "jdkelley/simple-http-server:latest"
+    hostname: test
+    container_name: test
+    ports: 
+      - 8000
+    volumes: 
+      - ./index.html:/server/index.html
+    networks:
+      - prx
+
+networks:
+    prx:
+      external: false
+
 volumes:
   dragonflydata:
