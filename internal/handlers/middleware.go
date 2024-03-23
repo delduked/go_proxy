@@ -2,30 +2,41 @@ package handlers
 
 import (
 	"net/http"
+
+	l "prx/internal/logger"
 )
 
-// validateUpdateRequest ensures that the request is a POST and Content-Type is application/json.
-func ValidateUpdatePostRequest(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		if req.Method != "POST" {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		if contentType := req.Header.Get("Content-Type"); contentType != "application/json" {
-			http.Error(w, "Invalid Content-Type. Only application/json is allowed", http.StatusUnsupportedMediaType)
-			return
-		}
-		next.ServeHTTP(w, req)
-	}
+type wrapperWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (w *wrapperWriter) WriteHeader(statusCode int) {
+	w.ResponseWriter.WriteHeader(statusCode)
+	w.statusCode = statusCode
 }
 
 // validateUpdateRequest ensures that the request is a POST and Content-Type is application/json.
-func ValidateUpdateGetRequest(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		if req.Method != "GET" {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
+func Logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l.Log.Info(r.Method, r.URL.Path)
+		wrapped := &wrapperWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK,
 		}
-		next.ServeHTTP(w, req)
+		l.Log.Info(r.Method, wrapped.statusCode, r.URL.Path)
+		next.ServeHTTP(wrapped, r)
+	})
+}
+
+type Middleware func(http.Handler) http.Handler
+
+func CreateStack(xs ...Middleware) Middleware {
+	return func(next http.Handler) http.Handler {
+		for i := len(xs) - 1; i >= 0; i-- {
+			x := xs[i]
+			next = x(next)
+		}
+		return next
 	}
 }

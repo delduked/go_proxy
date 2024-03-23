@@ -2,35 +2,45 @@ package main
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
 	"prx/internal/db"
 	"prx/internal/handlers"
-
-	l "prx/internal/logger"
-
-	"github.com/lucas-clemente/quic-go/http3"
 )
 
 func main() {
+
 	db.InitRedisClient()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlers.HandleRequest)
-	mux.HandleFunc("/api/update-redirect", handlers.ValidateUpdatePostRequest(handlers.UpdateRedirectRecord))
-	mux.HandleFunc("/api/get-redirects", handlers.ValidateUpdateGetRequest(handlers.GetAllRedirectRecordsHandler))
-	mux.HandleFunc("/api/status", handlers.StatusHandler)
+	router := http.NewServeMux()
+	router.HandleFunc("GET /", handlers.HandleRequest)
+	router.HandleFunc("GET /api/status", handlers.StatusHandler)
 
-	server := &http3.Server{
-		Addr: ":443",
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{ /* Your TLS certificates */ },
-			NextProtos:   []string{"quic"},
+	router.HandleFunc("GET /api/records", handlers.GetAllRedirectRecordsHandler)
+	router.HandleFunc("POST /api/records", handlers.UpdateRedirectRecord)
+
+	stack := handlers.CreateStack(
+		handlers.Logging,
+	)
+
+	cfg := &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
 		},
-		Handler: mux,
 	}
 
-	l.Log.Info("Starting HTTP/3 server...")
-	if err := server.ListenAndServeTLS("./cmd/server/tls.crt", "./cmd/server/tls.key"); err != nil {
-		l.Log.Fatal("Failed to start server", "err", err)
+	srv := &http.Server{
+		Addr:         ":443",
+		Handler:      stack(router),
+		TLSConfig:    cfg,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
+
+	log.Fatal(srv.ListenAndServeTLS("tls.crt", "tls.key"))
 }
