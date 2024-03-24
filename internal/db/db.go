@@ -19,12 +19,12 @@ var (
 
 func InitRedisClient() {
 
-	var REDIS_PASSWORD string
-	if ok := os.Getenv("REDIS_PASSWORD"); ok == "" {
-		l.Log.Error("REDIS_PASSWORD is not set. Using default value")
-		REDIS_PASSWORD = "your_password"
+	var REDIS_PASS string
+	if ok := os.Getenv("REDIS_PASS"); ok == "" {
+		l.Log.Error("REDIS_PASS is not set. Using default value")
+		REDIS_PASS = "your_password"
 	} else {
-		REDIS_PASSWORD = os.Getenv("REDIS_PASSWORD")
+		REDIS_PASS = os.Getenv("REDIS_PASS")
 	}
 
 	var REDIS_PORT string
@@ -35,25 +35,25 @@ func InitRedisClient() {
 		REDIS_PORT = os.Getenv("REDIS_PORT")
 	}
 
-	var REDIS_ADDRESS string
-	if ok := os.Getenv("REDIS_ADDRESS"); ok == "" {
-		l.Log.Error("REDIS_ADDRESS is not set. Using default value")
-		REDIS_ADDRESS = "localhost"
+	var REDIS_ADDR string
+	if ok := os.Getenv("REDIS_ADDR"); ok == "" {
+		l.Log.Error("REDIS_ADDR is not set. Using default value")
+		REDIS_ADDR = "localhost"
 	} else {
-		REDIS_ADDRESS = os.Getenv("REDIS_ADDRESS")
+		REDIS_ADDR = os.Getenv("REDIS_ADDR")
 	}
 
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     REDIS_ADDRESS + ":" + REDIS_PORT,
-		Password: REDIS_PASSWORD,
+		Addr:     REDIS_ADDR + ":" + REDIS_PORT,
+		Password: REDIS_PASS,
 		DB:       0,
 	})
 
 	l.Log.Info("* Redis client initialized * ")
 	l.Log.Info("*")
 	l.Log.Info("*")
-	l.Log.Info("* Pass: ", REDIS_PASSWORD)
-	l.Log.Info("* Addr: ", REDIS_ADDRESS)
+	l.Log.Info("* Pass: ", REDIS_PASS)
+	l.Log.Info("* Addr: ", REDIS_ADDR)
 	l.Log.Info("* Port: ", REDIS_PORT)
 	l.Log.Info("*")
 	l.Log.Info("*")
