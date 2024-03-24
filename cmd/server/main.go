@@ -1,12 +1,12 @@
 package main
 
 import (
-	"crypto/tls"
 	l "prx/internal/logger"
 	"net/http"
 	"prx/internal/handlers"
 	"prx/internal/utils"
 	"strings"
+  "flag"
 )
 
 func main() {
@@ -38,5 +38,5 @@ func main() {
 		Handler:      stack(router),
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	l.Log.Fatal(srv.ListenAndServe())
 }

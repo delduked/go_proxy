@@ -1,5 +1,9 @@
 package utils
 
+import (
+  "strings"
+)
+
 var RedirectRecords = make(map[string]string)
 
 type RecordsFlag []string
