@@ -28,7 +28,7 @@ WORKDIR /app
 COPY --from=stage1 /app/main /app/main
 
 # Expose port 443 for your application
-EXPOSE 443
+EXPOSE 80
 
 # Specify the command to run your binary
 CMD ["./main"]
