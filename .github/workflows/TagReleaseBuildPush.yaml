@@ -33,4 +33,8 @@ jobs:
           docker push ghcr.io/delduked/go_proxy:latest
           docker push ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }}
 
+          docker image rmi goprx
+          docker image rmi ghcr.io/delduked/go_proxy:latest
+          docker image rmi ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }}
+
           echo "image ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} was built and pushed succesfully."
