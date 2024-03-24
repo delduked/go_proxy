@@ -42,5 +42,5 @@ func main() {
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
 
-	log.Fatal(srv.ListenAndServeTLS("./server.rsa.crt", "./server.rsa.key"))
+	log.Fatal(srv.ListenAndServeTLS("./aproxynate.io.origin.pem.crt", "./aproxynate.io.origin.pem.key"))
 }

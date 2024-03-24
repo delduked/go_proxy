@@ -1,32 +1,45 @@
 version: "3.8"
 services:
-  #goprx:
-    #image:
-      #build: ./dockerfile.yaml
-      #context: ./
-    #ports:
-      #  - "80:80"
-    #volumes:
-      #- ./tls.crt:/app/tls.crt
-      #  - ./tls.key:/app/tls.key
-    #restart: unless-stopped
-    #depends_on:
-      #       - dragonfly
 
-   dragonfly:
-     image: docker.dragonflydb.io/dragonflydb/dragonfly
-     ulimits:
-       memlock: -1
-     ports:
-       - ${REDIS_PORT}:${REDIS_PORT}
-     command: >
-       --bind ${REDIS_ADDR}
-       --dir data
-       --dbfilename dump
-       --requirepass ${REDIS_PASS} 
-       --port ${REDIS_PORT}
-     volumes:
-       - ./data:/data
-     restart: unless-stopped
-volumes:
-   dragonflydata:
+  goprx:
+    build:
+      dockerfile: ./dockerfile.yaml
+      context: .
+    networks:
+        - prx
+    ports:
+      - "443:443"
+    volumes:
+      - ./cmd/server/aproxynate.io.origin.pem.crt:/app/aproxynate.io.origin.pem.crt
+      - ./cmd/server/aproxynate.io.origin.pem.key:/app/aproxynate.io.origin.pem.key
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: ${REDIS_ADDR}
+      REDIS_PASS: ${REDIS_PASS}
+      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      - dragonfly
+
+  dragonfly:
+    hostname: dragonfly
+    container_name: dragonfly
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    ulimits:
+      memlock: -1
+    ports:
+      - ${REDIS_PORT}
+    networks:
+        - prx
+    command: >
+      --bind ${REDIS_ADDR}
+      --dir data
+      --dbfilename dump
+      --requirepass ${REDIS_PASS} 
+      --port ${REDIS_PORT}
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+
+networks:
+  prx:
+    external: false
