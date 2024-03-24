@@ -23,7 +23,14 @@ jobs:
         id: docker_build
         run : |
           echo "building go_proxy image"
+
           echo ${{ secrets.GH_RUNNER }} | docker login ghcr.io -u delduked --password-stdin
-          docker build -t ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} ./ -f ./go_proxy.dockerfile
-          docker push ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} 
-          echo "image go_proxy was built and pushed succesfully."
+          docker build -t goprx ./ -f ./go_proxy.dockerfile
+
+          docker tag gorpx ghcr.io/delduked/go_proxy:latest 
+          docker tag gorpx ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} 
+
+          docker push ghcr.io/delduked/go_proxy:latest
+          docker push ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }}
+
+          echo "image ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} was built and pushed succesfully."
