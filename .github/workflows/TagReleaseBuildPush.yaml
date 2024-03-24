@@ -1,0 +1,29 @@
+name: TagReleaseBuildPush
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: [self-hosted, Linux, X64, go_proxy]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Calculate next release tag
+        id: create_tag
+        run: |
+          VERSION=$(git rev-parse --short HEAD)
+          DATE=$(date +'%Y%m%d')
+          VVERSION=${DATE}v_${VERSION}
+          echo "tag=v_${VERSION}" >> $GITHUB_OUTPUT
+          echo "tagname=${VVERSION}" >> $GITHUB_OUTPUT
+
+      - name: Build and push docker image
+        id: docker_build
+        run : |
+          echo "building go_proxy image"
+          echo ${{ secrets.GH_RUNNER }} | docker login ghcr.io -u delduked --password-stdin
+          docker build -t ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} ./ -f ./go_proxy.dockerfile
+          docker push ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} 
+          echo "image go_proxy was built and pushed succesfully."
