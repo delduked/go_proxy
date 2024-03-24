@@ -39,6 +39,9 @@ func main() {
 	}
 
   l.Log.Info("Server started...")
+  for k, v := range utils.RedirectRecords {
+    l.Log.Info("From: ", k , " to: ", v)
+  }
 
   if err := srv.ListenAndServe(); err != nil {
     l.Log.Fatal("server failed: ", err)
