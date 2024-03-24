@@ -38,5 +38,10 @@ func main() {
 		Handler:      stack(router),
 	}
 
-	l.Log.Fatal(srv.ListenAndServe())
+  l.Log.Info("Server started...")
+
+  if err := srv.ListenAndServe(); err != nil {
+    l.Log.Fatal("server failed: ", err)
+  }
+
 }
