@@ -50,7 +50,9 @@ spec:
     spec:
       containers:
         - name: aproxynate
-          image: go_proxy/aproxynate
+          image: ghcr.io/delduked/go_proxy:latest
+          command: ["/main"]
+          args: ["--record","FROM=TO"]
           imagePullPolicy: Always
           ports:
             - containerPort: 80

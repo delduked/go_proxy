@@ -1,35 +1,13 @@
-# Use a specific version of the Go image from the Alpine series
-FROM golang:1.22.1-alpine AS stage1
-
-# Set the working directory to the root of your Go module
+FROM golang:1.22.1 AS stage1
 WORKDIR /app
-
-# Copy the entire project to the container
 COPY . .
-
-# Run go mod tidy from the module root to clean up the module's dependencies
 RUN go mod tidy
-
-# Change the working directory to where your main package is
 WORKDIR /app/cmd/server
-
-# Build the binary for your application
-# Note: We're now building from /app/cmd/server, but since we've copied everything to /app,
-# go build can still resolve dependencies based on the go.mod file at /app.
 RUN go build -o /app/main .
 
-# Start a new stage for the runtime environment
 FROM alpine:latest
-
-# Set the working directory to /app
 WORKDIR /app
-
-# Copy the built binary from the previous stage
 COPY --from=stage1 /app/main /app/main
-
-# Expose port 443 for your application
 EXPOSE 80
-
-# Specify the command to run your binary
 CMD ["./main"]
 
