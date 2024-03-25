@@ -20,8 +20,8 @@ func main() {
 	}
 
 	router := http.NewServeMux()
-	router.HandleFunc("/", handlers.HandleRequests)
-	router.HandleFunc("/api/status", handlers.StatusHandler)
+	router.HandleFunc("GET /", handlers.HandleRequests)
+	router.HandleFunc("GET /api/status", handlers.StatusHandler)
 
 	middlewareStack := handlers.MiddlewareStack(handlers.LoggingMiddleware)
 

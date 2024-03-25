@@ -26,6 +26,7 @@ func ParseRedirectRecords(records RedirectFlag) error {
 			logger.Log.Info("Skipping invalid record format:", "record", record)
 			continue
 		}
+		logger.Log.Info("Redirect record:", "from", parts[0], "to", parts[1])
 		RedirectRecords[parts[0]] = parts[1]
 	}
 	if len(RedirectRecords) == 0 {
