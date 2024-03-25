@@ -47,5 +47,5 @@ jobs:
           docker image rmi goprx
           docker image rmi ghcr.io/delduked/go_proxy:latest
           docker image rmi ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }}
-          docker image prune --all -y
+          docker image prune --all --force
           echo "image ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} was built and pushed succesfully."
