@@ -5,6 +5,9 @@ services:
     build:
       dockerfile: ./dockerfile.yaml
       context: .
+    command: >
+      - --record
+      - from=to
     ports:
       - "80:80"
     restart: unless-stopped

@@ -1,51 +1,37 @@
 package main
 
 import (
-	l "prx/internal/logger"
+	"flag"
 	"net/http"
 	"prx/internal/handlers"
+	"prx/internal/logger"
 	"prx/internal/utils"
-	"strings"
-  "flag"
 )
 
 func main() {
+	var redirectPairs utils.RedirectFlag
 
-  var records utils.RecordsFlag
+	flag.Var(&redirectPairs, "record", "Specify redirect records in the format FROM=TO. Multiple records can be specified.")
+	flag.Parse()
 
-  flag.Var(&records, "record", "Add a record in the format FROM=TO. Multiple values can be specified.")
-  flag.Parse()
-
-  for _, record := range records {
-	  parts := strings.Split(record, "=")
-		if len(parts) != 2 {
-			l.Log.Info("Invalid record format:", record)
-			continue
-    	}
-    l.Log.Info(record)
-   
-    parts[0] = strings.ReplaceAll(parts[0], "=", "")
-  	parts[1] = strings.ReplaceAll(parts[1], "=", "")
-
-		utils.RedirectRecords[parts[0]] = parts[1]
+	if err := utils.ParseRedirectRecords(redirectPairs); err != nil {
+		logger.Log.Error("Failed to parse redirect records:", "error", err)
+		return
 	}
 
 	router := http.NewServeMux()
-	router.HandleFunc("/", handlers.HandleRequest)
+	router.HandleFunc("/", handlers.HandleRequests)
 	router.HandleFunc("/api/status", handlers.StatusHandler)
 
-  stack := handlers.CreateStack(
-    handlers.Logging,
-  )
+	middlewareStack := handlers.MiddlewareStack(handlers.LoggingMiddleware)
 
-	srv := &http.Server{
-		Addr:         ":80",
-		Handler:      stack(router),
+	server := &http.Server{
+		Addr:    ":80",
+		Handler: middlewareStack(router),
 	}
 
-  l.Log.Info("Server started...")
-  if err := srv.ListenAndServe(); err != nil {
-    l.Log.Fatal("server failed: ", err)
-  }
-
+	logger.Log.Info("Server started on port 80")
+	if err := server.ListenAndServe(); err != nil {
+		logger.Log.Fatal("Server failed to start:", "error", err)
+	}
 }
