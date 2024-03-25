@@ -15,7 +15,7 @@ import (
 func HandleRequest(w http.ResponseWriter, req *http.Request) {
 
 	if utils.RedirectRecords[req.Host] == "" {
-		l.Log.Error("Redirect record does not exist", utils.RedirectRecords[req.Host])
+    l.Log.Error("No record found: ","Record for ",req.Host," does not exist")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	} 
