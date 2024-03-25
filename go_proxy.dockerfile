@@ -1,4 +1,4 @@
-FROM golang:1.22.1 AS stage1
+FROM golang:1.22.1-alpine AS stage1
 WORKDIR /app
 COPY . .
 RUN go mod tidy
