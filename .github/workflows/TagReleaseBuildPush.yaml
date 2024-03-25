@@ -24,6 +24,7 @@ jobs:
         run : |
           echo "building go_proxy image"
           echo ${{ secrets.GH_RUNNER }} | docker login ghcr.io -u delduked --password-stdin
+          docker builder prune --all --force
           docker build -t goprx ./ -f ./go_proxy.dockerfile --no-cache
 
       - name: Tag docker image
