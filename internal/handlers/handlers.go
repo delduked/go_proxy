@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+  "net/http/httputil"
+  "net/url"
 	"time"
 
 	l "prx/internal/logger"
@@ -16,10 +18,11 @@ func HandleRequest(w http.ResponseWriter, req *http.Request) {
 		l.Log.Error("Redirect record does not exist", utils.RedirectRecords[req.Host])
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
-	}
+	} 
 
-	toURL := utils.RedirectRecords[req.Host]
-	http.Redirect(w, req, toURL, http.StatusFound)
+	toURL, _ := url.Parse(utils.RedirectRecords[req.Host])
+  proxy := httputil.NewSingleHostReverseProxy(toURL)
+	proxy.ServeHTTP(w,req)
 }
 
 func StatusHandler(w http.ResponseWriter, req *http.Request) {

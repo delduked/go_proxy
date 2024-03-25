@@ -17,21 +17,26 @@ func main() {
   flag.Parse()
 
   for _, record := range records {
-	parts := strings.SplitN(record, "=", 2)
+	  parts := strings.Split(record, "=")
 		if len(parts) != 2 {
 			l.Log.Info("Invalid record format:", record)
 			continue
     	}
+    l.Log.Info(record)
+   
+    parts[0] = strings.ReplaceAll(parts[0], "=", "")
+  	parts[1] = strings.ReplaceAll(parts[1], "=", "")
+
 		utils.RedirectRecords[parts[0]] = parts[1]
 	}
 
 	router := http.NewServeMux()
-	router.HandleFunc("GET /", handlers.HandleRequest)
-	router.HandleFunc("GET /api/status", handlers.StatusHandler)
+	router.HandleFunc("/", handlers.HandleRequest)
+	router.HandleFunc("/api/status", handlers.StatusHandler)
 
-	stack := handlers.CreateStack(
-		handlers.Logging,
-	)
+  stack := handlers.CreateStack(
+    handlers.Logging,
+  )
 
 	srv := &http.Server{
 		Addr:         ":80",
@@ -39,10 +44,6 @@ func main() {
 	}
 
   l.Log.Info("Server started...")
-  for k, v := range utils.RedirectRecords {
-    l.Log.Info("From: ", k , " to: ", v)
-  }
-
   if err := srv.ListenAndServe(); err != nil {
     l.Log.Fatal("server failed: ", err)
   }

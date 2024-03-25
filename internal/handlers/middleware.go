@@ -24,7 +24,7 @@ func Logging(next http.Handler) http.Handler {
 			ResponseWriter: w,
 			statusCode:     http.StatusOK,
 		}
-		l.Log.Info(r.Method, wrapped.statusCode, r.URL.Path)
+		l.Log.Info(r.Method, wrapped.statusCode, r.URL.Path, r.Host)
 		next.ServeHTTP(wrapped, r)
 	})
 }
