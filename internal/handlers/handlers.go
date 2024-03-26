@@ -3,31 +3,36 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-  "net/http/httputil"
-  "net/url"
-	"time"
-
-	l "prx/internal/logger"
-
+	"net/http/httputil"
+	"net/url"
+	"prx/internal/logger"
 	"prx/internal/utils"
+	"time"
 )
 
-func HandleRequest(w http.ResponseWriter, req *http.Request) {
+func HandleRequests(w http.ResponseWriter, req *http.Request) {
+        targetURL, ok := utils.RedirectRecords[req.Host]
+        if !ok {
+            logger.Log.Error("No redirect record found for host:", "host", req.Host)
+            http.Error(w, "Not Found", http.StatusNotFound)
+            return
+        }
 
-	if utils.RedirectRecords[req.Host] == "" {
-    l.Log.Error("No record found: ","Record for ",req.Host," does not exist")
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	} 
+        logger.Log.Info("Proxying request", "host", req.Host, "target", targetURL)
 
-	toURL, _ := url.Parse(utils.RedirectRecords[req.Host])
-  proxy := httputil.NewSingleHostReverseProxy(toURL)
-	proxy.ServeHTTP(w,req)
+        parsedURL, err := url.Parse(targetURL)
+        if err != nil {
+            logger.Log.Error("Failed to parse target URL", "target", targetURL, "error", err)
+            http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+            return
+        }
+
+        proxy := httputil.NewSingleHostReverseProxy(parsedURL)
+        proxy.ServeHTTP(w, req)
 }
 
 func StatusHandler(w http.ResponseWriter, req *http.Request) {
-
-	res := struct {
+	response := struct {
 		Status string `json:"status"`
 		Time   string `json:"time"`
 	}{
@@ -35,11 +40,11 @@ func StatusHandler(w http.ResponseWriter, req *http.Request) {
 		Time:   time.Now().Format(time.RFC3339),
 	}
 
-	// Add any status checks you need here
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		l.Log.Error("Failed to encode records", "err", err)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Log.Error("Failed to encode response", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }

@@ -4,11 +4,12 @@ import (
 	"os"
 	"time"
 
-	a "github.com/charmbracelet/log"
+	"github.com/charmbracelet/log"
 )
 
-var Log = a.NewWithOptions(os.Stderr, a.Options{
+var Log = log.NewWithOptions(os.Stderr, log.Options{
 	ReportCaller:    true,
 	ReportTimestamp: true,
 	TimeFormat:      time.Kitchen,
+	Prefix:          "Proxy Server",
 })
