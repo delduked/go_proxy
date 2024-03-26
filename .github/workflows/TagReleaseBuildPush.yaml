@@ -50,3 +50,15 @@ jobs:
           docker image rmi ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }}
           docker image prune --all --force
           echo "image ghcr.io/delduked/go_proxy:${{ steps.create_tag.outputs.tag }} was built and pushed succesfully."
+
+      - name: Create Release
+        id: create_release
+        if: steps.docker_build.outcome == 'success'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RUNNER }}
+        with:
+          tag_name: ${{ steps.create_tag.outputs.tag }} 
+          release_name: ${{ steps.create_tag.outputs.tagname }} 
+          draft: false
+          prerelease: false
