@@ -3,11 +3,28 @@ services:
 
   goprx:
     build:
-      dockerfile: ./dockerfile.yaml
+      dockerfile: ./go_proxy.dockerfile
       context: .
     command: >
-      - --record
-      - from=to
+      ./main
+      --record
+      localhost=http://isthisworking:80
     ports:
-      - "80:80"
+      - "443:443"
+    networks:
+      - goprx
     restart: unless-stopped
+
+  httpd:
+    image: httpd:2.4
+    container_name: isthisworking
+    hostname: isthisworking
+    ports:
+      - "80"
+    networks:
+      - goprx  
+    restart: unless-stopped
+
+networks:
+  goprx:
+    external: false

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
+	"log"
 	"net/http"
 	"prx/internal/handlers"
 	"prx/internal/logger"
@@ -26,12 +28,19 @@ func main() {
 	middlewareStack := handlers.MiddlewareStack(handlers.LoggingMiddleware)
 
 	server := &http.Server{
-		Addr:    ":80",
+		Addr:    ":443",
 		Handler: middlewareStack(router),
+		TLSConfig: &tls.Config{
+			GetCertificate: func(req *tls.ClientHelloInfo) (*tls.Certificate, error) {
+				return utils.GetOrCreateCertificate(req.ServerName)
+			},
+		},
 	}
 
-	logger.Log.Info("Server started on port 80")
-	if err := server.ListenAndServe(); err != nil {
-		logger.Log.Fatal("Server failed to start:", "error", err)
+	// Listen and serve with TLS
+	log.Println("Starting HTTPS server on port 443")
+	err := server.ListenAndServeTLS("", "") // Cert and key are provided by the TLSConfig
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
